@@ -1,0 +1,77 @@
+# =========================
+# Buildroot artifacts
+# =========================
+/buildroot/output/
+/buildroot/dl/
+/buildroot/.config.old
+/buildroot/.config.tmp
+/buildroot/.br2-external.mk
+
+# Generated images
+*.img
+*.img.gz
+*.sdcard
+*.wic
+*.wic.gz
+*.iso
+
+# Kernel / DTB build artifacts
+*.dtb
+*.dtbo
+*.zImage
+*.Image
+*.uImage
+vmlinux
+System.map
+
+# =========================
+# Videos / media
+# =========================
+*.mkv
+*.mp4
+*.avi
+*.mov
+*.ts
+*.webm
+
+/mnt/videos/
+/videos/
+
+# =========================
+# FFmpeg / runtime leftovers
+# =========================
+*.log
+*.pid
+
+# =========================
+# Toolchain / binaries
+# =========================
+*.o
+*.a
+*.so
+*.elf
+tvd
+
+# =========================
+# Editor / OS junk
+# =========================
+*.swp
+*.swo
+*.tmp
+*~
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDEs
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# Archives
+# =========================
+*.zip
+*.tar
+*.tar.gz
+*.tar.xz
