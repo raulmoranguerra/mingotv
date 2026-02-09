@@ -1,0 +1,1 @@
+root=/dev/mmcblk0p2 rootwait modules-load=dwc2 console=ttyGS0,115200 quiet loglevel=0 vt.global_cursor_default=0 rd.systemd.show_status=false fsck.repair=no
