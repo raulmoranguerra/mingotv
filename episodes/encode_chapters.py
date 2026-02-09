@@ -99,6 +99,9 @@ for f in files:
     cmd = [
         "ffmpeg", "-y",
         "-i", f,
+        "-sn",
+        "-map", "0:v:0",
+        "-map", "0:a:0?",
         "-vf", vf,
 
         # FPS + GOP adaptativos
