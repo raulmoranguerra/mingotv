@@ -93,7 +93,7 @@ for f in files:
     fps_str, gop, keymin, reason = pick_fps_mode(src_fps)
 
     # Filtro: pantalla llena 640x480 (4:3 sin franjas; 16:9 recorta arriba/abajo)
-    vf = "scale=640:480:force_original_aspect_ratio=increase,crop=640:480,setsar=1"
+    vf = "hqdn3d=1.2:1.2:3:3,scale=640:480:force_original_aspect_ratio=increase,crop=640:480,setsar=1"
 
     # Base común
     cmd = [
@@ -111,9 +111,9 @@ for f in files:
         "-sc_threshold", "0",
 
         # Bitrate bajo
-        "-b:v", "500k",
-        "-maxrate", "600k",
-        "-bufsize", "1200k",
+        "-b:v", "700k",
+        "-maxrate", "900k",
+        "-bufsize", "1800k",
 
         # Audio (AAC estéreo)
         "-c:a", "aac",
