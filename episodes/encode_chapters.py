@@ -1,6 +1,8 @@
 import os
 import re
 import subprocess
+import platform
+from typing import Optional
 
 directory = os.path.dirname(os.path.realpath(__file__))
 out_dir = os.path.join(directory, "encoded")
@@ -11,7 +13,7 @@ VIDEO_EXTS = {".mp4", ".mkv", ".mov", ".avi"}
 def is_video(f: str) -> bool:
     return os.path.splitext(f.lower())[1] in VIDEO_EXTS
 
-def extract_episode_id(filename: str) -> str | None:
+def extract_episode_id(filename: str) -> Optional[str]:
     m = re.search(r"s(\d{2})e(\d{2})", filename.lower())
     if not m:
         return None
@@ -64,6 +66,13 @@ def cuda_available() -> bool:
         return False
     r = subprocess.run(["nvidia-smi"], capture_output=True, text=True)
     return r.returncode == 0
+
+def mac_videotoolbox_available():
+    if platform.system() != "Darwin":
+        return False
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-encoders"],
+                    capture_output=True, text=True)
+    return "h264_videotoolbox" in (r.stdout or "")
 
 # --- Scan input files (ignore encoded/) ---
 files = []
@@ -124,23 +133,33 @@ for f in files:
         "-f", "matroska",
     ]
 
+    system = platform.system()
+
     if use_nvenc:
-        # --- NVIDIA NVENC path (CUDA) ---
-        # Nota: NVENC no usa -tune fastdecode de x264.
-        # Ajustes pensados para decodificación fácil: sin B-frames, refs=1, GOP estable.
+        # --- NVIDIA NVENC (Windows/Linux con RTX) ---
         cmd += [
             "-c:v", "h264_nvenc",
-            "-preset", "p4",          # equilibrio (p1 más rápido, p7 mejor calidad)
-            "-profile:v", "baseline", # similar a tu intención (máx compat)
+            "-preset", "p4",
+            "-profile:v", "baseline",
             "-bf", "0",
             "-refs", "1",
             "-rc", "vbr",
             "-rc-lookahead", "0",
-            "-spatial_aq", "0",
-            "-temporal_aq", "0",
         ]
+        enc = "h264_nvenc"
+
+    elif mac_videotoolbox_available():
+        # --- macOS hardware encode (VideoToolbox / Metal backend) ---
+        cmd += [
+            "-c:v", "h264_videotoolbox",
+            "-profile:v", "baseline",
+            "-b:v", "700k",
+            "-maxrate", "900k",
+        ]
+        enc = "h264_videotoolbox"
+
     else:
-        # --- Software x264 path (tu configuración “Pi Zero friendly”) ---
+        # --- CPU fallback ---
         cmd += [
             "-c:v", "libx264",
             "-preset", "veryfast",
@@ -150,6 +169,7 @@ for f in files:
             "-pix_fmt", "yuv420p",
             "-x264-params", "bframes=0:ref=1:cabac=0:weightp=0",
         ]
+        enc = "libx264"
 
     cmd.append(out)
 
